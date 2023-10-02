@@ -25,7 +25,7 @@
       integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
       crossorigin="anonymous">
   <link rel="stylesheet" href="css/site.css">
-  <link rel="stylesheet" href="css/user.css">
+  <link rel="stylesheet" href="css/forms.css">
   <link rel="stylesheet" href="css/stories.css">
   <link rel="stylesheet" href="css/nav.css">
 </head>
@@ -98,6 +98,30 @@
       <input id="signup-password" autocomplete="new-password" type="password">
     </div>
     <button type="submit">create account</button>
+  </form>
+</section>
+
+<!-- Add story form -->
+<section class="story-form-container container">
+  <form
+      action="#"
+      id="add-story-form"
+      class="story-form hidden"
+      method="post">
+    <h4>Add Story</h4>
+    <div class="story-input">
+      <label for="story-author">author</label>
+      <input id="story-author" autocapitalize="words">
+    </div>
+    <div class="story-input">
+      <label for="story-title">title</label>
+      <input id="story-title">
+    </div>
+    <div class="story-input">
+      <label for="story-url">url</label>
+      <input id="story-url">
+    </div>
+    <button type="submit">add story</button>
   </form>
 </section>
 

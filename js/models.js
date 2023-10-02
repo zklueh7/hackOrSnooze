@@ -74,19 +74,19 @@ class StoryList {
    */
 
   async addStory(user, author, title, url) {
-    let response = await axios.post(
-      "https://hack-or-snooze-v3.herokuapp.com/stories", 
-    {
-      "token": user.loginToken,
-      "story": {
-        "author": author,
-        "title": title,
-        "url": url
-      }
-    })
-    let newStory = new Story(response.data.story);
-    this.stories.append(newStory);
-    user.ownStories.append(newStory);
+    //post new story data to API
+    const res = await axios.post(
+      `${BASE_URL}/stories`, 
+      {
+        "token": user.loginToken,
+        "story": { "author":author, "title":title, "url":url }
+      }) 
+    
+    //API sends back additional data: time created, storyId, username of creator
+    let newStory = new Story(res.data.story);
+
+    //add data to stories array and return
+    this.stories.unshift(newStory); 
     return newStory;
   }
 }

@@ -50,3 +50,25 @@ function putStoriesOnPage() {
 
   $allStoriesList.show();
 }
+
+/** Gets info from submit story form and adds new story to page */
+async function addNewStoryToPage(event) {
+  console.debug("addNewStoryToPage");
+  event.preventDefault();
+
+  //get info from story submit form
+  const $author = $('#story-author').val();
+  const $title = $('#story-title').val();
+  const $url = $('#story-url').val();
+
+  //pass info to addStory function and generate HTML
+  const newStory = await storyList.addStory(currentUser, $author, $title, $url);
+  const newStoryHTML = generateStoryMarkup(newStory);
+
+  //add new story to story list, add new story to page, hide story submit form
+  storyList.prepend(newStoryHTML);
+  putStoriesOnPage();
+  hidePageComponents();
+}
+
+$storyForm.on("submit", addNewStoryToPage);
