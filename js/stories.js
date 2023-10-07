@@ -49,9 +49,17 @@ function putStoriesOnPage() {
     const $story = generateStoryMarkup(story);
     $allStoriesList.append($story);
   }
-
   $allStoriesList.show();
 }
+
+async function removeStoryFromPage(event) {
+  console.debug("deleteButtonClick");
+  const storyId = $(event.target).closest("li").attr("id");
+  await storyList.deleteStory(currentUser, storyId);
+  await putStoriesOnPage();
+}
+
+$("body").on("click", ".delete", removeStoryFromPage);
 
 /** Gets info from submit story form and adds new story to page */
 async function addNewStoryToPage(event) {
@@ -76,13 +84,20 @@ async function addNewStoryToPage(event) {
 
 $storyForm.on("submit", addNewStoryToPage);
 
+/******************************************************************************
+ * Functionality for list of user's own stories
+ */
 
+function showUserStories() {
+  console.debug("showUserStories");
 
-async function removeStoryFromPage(event) {
-  console.debug("deleteButtonClick");
-  const storyId = $(event.target).closest("li").attr("id");
-  await storyList.deleteStory(currentUser, storyId);
-  await putStoriesOnPage();
+  $userStories.empty();
+
+    // loop through all of users stories and generate HTML for them
+    for (let story of currentUser.ownStories) {
+      let $newStory = generateStoryMarkup(story);
+      $userStories.append($newStory);
+  }
+  console.log($userStories);
+  $userStories.show();
 }
-
-$("body").on("click", ".delete", removeStoryFromPage);
