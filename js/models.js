@@ -87,7 +87,15 @@ class StoryList {
 
     //add data to stories array and return
     this.stories.unshift(newStory); 
+    user.ownStories.unshift(newStory);
     return newStory;
+  }
+
+  async deleteStory(user, storyId) {
+    await axios.delete(
+      `${BASE_URL}/stories/${storyId}`,
+      {"token": user.loginToken})
+    this.stories = this.stories.filter(story => story.storyId !== storyId);
   }
 }
 

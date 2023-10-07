@@ -20,11 +20,12 @@ async function getAndShowStoriesOnStart() {
  */
 
 function generateStoryMarkup(story) {
-  // console.debug("generateStoryMarkup", story);
+  console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
   return $(`
       <li id="${story.storyId}">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Empty_Star.svg/1200px-Empty_Star.svg.png" class="empty-star">
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -65,18 +66,23 @@ async function addNewStoryToPage(event) {
 
   //pass info to addStory function and generate HTML
   const newStory = await storyList.addStory(currentUser, storyData);
-  const newStoryHTML = generateStoryMarkup(newStory);
+  console.log(newStory);
 
   //add new story to story list, add new story to page, hide story submit form
-  storyList.prepend(newStoryHTML);
-  putStoriesOnPage();
+  storyList.stories.push(newStory);
   hidePageComponents();
+  putStoriesOnPage();
 }
 
 $storyForm.on("submit", addNewStoryToPage);
 
-function deleteStory(event) {
-  console.debug("delete button");
+
+
+async function removeStoryFromPage(event) {
+  console.debug("deleteButtonClick");
+  const storyId = $(event.target).closest("li").attr("id");
+  await storyList.deleteStory(currentUser, storyId);
+  await putStoriesOnPage();
 }
 
-$deleteButton.on("click", deleteStory);
+$("body").on("click", ".delete", removeStoryFromPage);
