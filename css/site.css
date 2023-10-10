@@ -61,10 +61,10 @@ a:hover {
 }
 
 button.delete {
-  font-size: 10px;
+  font-size: 9px;
   padding: 2px 4px 2px 4px;
 }
 
-.empty-star {
-  width: 25px;
+.star {
+  width: 20px;
 }

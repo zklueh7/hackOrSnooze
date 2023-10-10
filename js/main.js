@@ -27,6 +27,7 @@ const $deleteButton = $("button.delete");
 function hidePageComponents() {
   const components = [
     $allStoriesList,
+    $userStories,
     $loginForm,
     $signupForm,
     $storyForm

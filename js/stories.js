@@ -19,22 +19,29 @@ async function getAndShowStoriesOnStart() {
  * Returns the markup for the story.
  */
 
-function generateStoryMarkup(story) {
+function generateStoryMarkup(story, deleteBtn=false, fav=false) {
   console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
   return $(`
       <li id="${story.storyId}">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Empty_Star.svg/1200px-Empty_Star.svg.png" class="empty-star">
+        ${fav ? showStar(true) : showStar(false)}
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
         <small class="story-hostname">(${hostName})</small>
-        <button class="delete" type="button">X</button>
+        ${deleteBtn ? "<button class='delete'>X</button>" : ""}
         <small class="story-author">by ${story.author}</small>
         <small class="story-user">posted by ${story.username}</small>
       </li>
     `);
+}
+
+function showStar(fav) {
+  if(fav === false) {
+    return `<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Empty_Star.svg/640px-Empty_Star.svg.png" class="empty-star star">`;
+  }
+  return `<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Star_empty.svg/471px-Star_empty.svg.png" class="filled-star star">`
 }
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
@@ -60,6 +67,25 @@ async function removeStoryFromPage(event) {
 }
 
 $("body").on("click", ".delete", removeStoryFromPage);
+
+async function favOrUnfavStory(event) {
+  console.debug("favButtonClick");
+  const storyId = $(event.target).closest("li").attr("id");
+  const story = storyList.stories.find(s => s.storyId === storyId);
+
+  if ($(event.target).hasClass("empty-star")) {
+    await currentUser.favoriteStory(story);
+    $(event.target).toggleClass("empty-star filled-star");
+    $(event.target).attr("src", "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Star_empty.svg/471px-Star_empty.svg.png");
+  } else {
+    await currentUser.unfavoriteStory(story);
+    $(event.target).toggleClass("filled-star empty-star");
+    $(event.target).attr("src", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Empty_Star.svg/640px-Empty_Star.svg.png")
+  }
+  console.debug($(event.target));
+}
+
+$("body").on("click", ".star", favOrUnfavStory);
 
 /** Gets info from submit story form and adds new story to page */
 async function addNewStoryToPage(event) {
@@ -95,7 +121,7 @@ function showUserStories() {
 
     // loop through all of users stories and generate HTML for them
     for (let story of currentUser.ownStories) {
-      let $newStory = generateStoryMarkup(story);
+      let $newStory = generateStoryMarkup(story, true);
       $userStories.append($newStory);
   }
   console.log($userStories);
