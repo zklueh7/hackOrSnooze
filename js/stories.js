@@ -19,13 +19,13 @@ async function getAndShowStoriesOnStart() {
  * Returns the markup for the story.
  */
 
-function generateStoryMarkup(story, deleteBtn=false, fav=false) {
-  console.debug("generateStoryMarkup", story);
+function generateStoryMarkup(story, deleteBtn=false) {
+  //console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
-  return $(`
+  return $(` 
       <li id="${story.storyId}">
-        ${fav ? showStar(true) : showStar(false)}
+        ${currentUser.isFavorite(story) ? showStar(true) : showStar(false)}
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
         </a>
@@ -46,7 +46,7 @@ function showStar(fav) {
 
 /** Gets list of stories from server, generates their HTML, and puts on page. */
 
-function putStoriesOnPage() {
+function putStoriesOnPage(user) {
   console.debug("putStoriesOnPage");
 
   $allStoriesList.empty();
@@ -74,15 +74,15 @@ async function favOrUnfavStory(event) {
   const story = storyList.stories.find(s => s.storyId === storyId);
 
   if ($(event.target).hasClass("empty-star")) {
-    await currentUser.favoriteStory(story);
+    await currentUser.addStoryToUserFavs(story);
     $(event.target).toggleClass("empty-star filled-star");
     $(event.target).attr("src", "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Star_empty.svg/471px-Star_empty.svg.png");
-  } else {
-    await currentUser.unfavoriteStory(story);
+  } 
+  else {
+    await currentUser.removeStoryFromUserFavs(story);
     $(event.target).toggleClass("filled-star empty-star");
     $(event.target).attr("src", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Empty_Star.svg/640px-Empty_Star.svg.png")
   }
-  console.debug($(event.target));
 }
 
 $("body").on("click", ".star", favOrUnfavStory);
