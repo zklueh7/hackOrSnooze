@@ -3,7 +3,7 @@
 // This is the global list of the stories, an instance of StoryList
 let storyList;
 
-/** Get and show stories when site first loads. */
+/* Get and show stories when site first loads. */
 
 async function getAndShowStoriesOnStart() {
   storyList = await StoryList.getStories();
@@ -37,14 +37,16 @@ function generateStoryMarkup(story, deleteBtn=false) {
     `);
 }
 
-function showStar(fav) {
-  if(fav === false) {
+/* If story is a favorite of the current user return a filled star, else return an empty star **/
+
+function showStar(isFav) {
+  if(isFav === false) {
     return `<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Empty_Star.svg/640px-Empty_Star.svg.png" class="empty-star star">`;
   }
   return `<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Star_empty.svg/471px-Star_empty.svg.png" class="filled-star star">`
 }
 
-/** Gets list of stories from server, generates their HTML, and puts on page. */
+/* Gets list of stories from server, generates their HTML, and puts on page. */
 
 function putStoriesOnPage(user) {
   console.debug("putStoriesOnPage");
@@ -59,35 +61,64 @@ function putStoriesOnPage(user) {
   $allStoriesList.show();
 }
 
+/* Gets list of current user's favorited stories from server, generates their HTML, and puts on page. */
+
+function putFavoritesOnPage() {
+  console.debug("putFavoritesOnPage");
+  $favoriteStories.empty();
+
+  if(currentUser.favorites.length === 0) {
+    $favoriteStories.append("<p>No favorited stories</p>");
+  }
+
+  else {
+    for (let story of currentUser.favorites) {
+      const $favStory = generateStoryMarkup(story, false);
+      $favoriteStories.append($favStory);
+    }
+  }
+  $favoriteStories.show();
+}
+
+/******************************************************************************
+ * Functionality for list of user's own stories
+ */
+
+/** Gets list of current user's stories from server, generates their HTML, and puts on page. 
+ * If the user has not added any stories display text that says "No stories added by user"
+*/
+
+function putUserStoriesOnPage() {
+  console.debug("putUserStoriesOnPage");
+  $userStories.empty();
+
+  if(currentUser.ownStories.length === 0) {
+    $userStories.append("<p>No user stories</p>");
+  }
+
+  else {
+        // loop through all of users stories and generate HTML for them
+        for (let story of currentUser.ownStories) {
+          let $newStory = generateStoryMarkup(story, true);
+          $userStories.append($newStory);
+      }
+  }
+  $userStories.show();
+}
+
+/* Delete story from list of stories and list of user stories on server, regenerate HTML for list of user stories and put on page */
+
 async function removeStoryFromPage(event) {
   console.debug("deleteButtonClick");
   const storyId = $(event.target).closest("li").attr("id");
   await storyList.deleteStory(currentUser, storyId);
-  await putStoriesOnPage();
+  putUserStoriesOnPage();
 }
 
 $("body").on("click", ".delete", removeStoryFromPage);
 
-async function favOrUnfavStory(event) {
-  console.debug("favButtonClick");
-  const storyId = $(event.target).closest("li").attr("id");
-  const story = storyList.stories.find(s => s.storyId === storyId);
-
-  if ($(event.target).hasClass("empty-star")) {
-    await currentUser.addStoryToUserFavs(story);
-    $(event.target).toggleClass("empty-star filled-star");
-    $(event.target).attr("src", "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Star_empty.svg/471px-Star_empty.svg.png");
-  } 
-  else {
-    await currentUser.removeStoryFromUserFavs(story);
-    $(event.target).toggleClass("filled-star empty-star");
-    $(event.target).attr("src", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Empty_Star.svg/640px-Empty_Star.svg.png")
-  }
-}
-
-$("body").on("click", ".star", favOrUnfavStory);
-
 /** Gets info from submit story form and adds new story to page */
+
 async function addNewStoryToPage(event) {
   console.debug("addNewStoryToPage");
   event.preventDefault();
@@ -110,20 +141,25 @@ async function addNewStoryToPage(event) {
 
 $storyForm.on("submit", addNewStoryToPage);
 
-/******************************************************************************
- * Functionality for list of user's own stories
- */
+/* Mark or unmark a story as a favorite depending on current favorite status
+if story is currently a favorite, remove the story from the user favorite list and unfill the corresponding star
+if the story is not currently a favorite, add the story to the user favorite list and fill the corresponding star */
 
-function showUserStories() {
-  console.debug("showUserStories");
+async function favOrUnfavStory(event) {
+  console.debug("favButtonClick");
+  const storyId = $(event.target).closest("li").attr("id");
+  const story = storyList.stories.find(s => s.storyId === storyId);
 
-  $userStories.empty();
-
-    // loop through all of users stories and generate HTML for them
-    for (let story of currentUser.ownStories) {
-      let $newStory = generateStoryMarkup(story, true);
-      $userStories.append($newStory);
+  if ($(event.target).hasClass("empty-star")) {
+    await currentUser.addStoryToUserFavs(story);
+    $(event.target).toggleClass("empty-star filled-star");
+    $(event.target).attr("src", "https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Star_empty.svg/471px-Star_empty.svg.png");
+  } 
+  else {
+    await currentUser.removeStoryFromUserFavs(story);
+    $(event.target).toggleClass("filled-star empty-star");
+    $(event.target).attr("src", "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Empty_Star.svg/640px-Empty_Star.svg.png")
   }
-  console.log($userStories);
-  $userStories.show();
 }
+
+$("body").on("click", ".star", favOrUnfavStory);

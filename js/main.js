@@ -7,6 +7,7 @@ const $body = $("body");
 const $storiesLoadingMsg = $("#stories-loading-msg");
 const $allStoriesList = $("#all-stories-list");
 const $userStories = $("#my-stories-list");
+const $favoriteStories = $("#favorite-stories-list");
 
 const $loginForm = $("#login-form");
 const $signupForm = $("#signup-form");
@@ -30,7 +31,8 @@ function hidePageComponents() {
     $userStories,
     $loginForm,
     $signupForm,
-    $storyForm
+    $storyForm,
+    $favoriteStories
   ];
   components.forEach(c => c.hide());
 }
